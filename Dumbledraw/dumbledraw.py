@@ -6,10 +6,11 @@ import logging
 import copy
 import ROOT as R
 import math
-#import rootfile_parser
+
+# import rootfile_parser
 logger = logging.getLogger(__name__)
 
-import styles
+from . import styles
 
 
 class Plot(object):
@@ -21,10 +22,11 @@ class Plot(object):
         self._subplots = []
         self._legends = []
         self._lines = []
+        self._inlet_lines = []
         self._inlets = []
         self._inlets_legends = []
         # evaluate splitlist and book
-        if isinstance(splitlist, basestring):
+        if isinstance(splitlist, str):
             splitlist = [splitlist]
         lower = 1.0
         upper = 1.0
@@ -91,7 +93,7 @@ class Plot(object):
             logger.fatal("Inlet Legend index is out of range!")
             raise Exception
         return self._inlets_legends[index]
-    
+
     def line(self, index):
         if not isinstance(index, int):
             logger.fatal("Line index is supposed to be of type int!")
@@ -101,11 +103,27 @@ class Plot(object):
             raise Exception
         return self._lines[index]
 
+    def inlet_line(self, index):
+        if not isinstance(index, int):
+            logger.fatal("Line index is supposed to be of type int!")
+            raise Exception
+        if index >= len(self._inlet_lines):
+            logger.fatal("Line index is out of range!")
+            raise Exception
+        return self._inlet_lines[index]
+
     def save(self, outputname):
         self._canvas.SaveAs(outputname)
         logger.info("Created %s" % outputname)
 
-    def DrawChannelCategoryLabel(self, text, textsize=0.04, begin_left=None, print_inside=False,legend_outside=False):
+    def DrawChannelCategoryLabel(
+        self,
+        text,
+        textsize=0.04,
+        begin_left=None,
+        print_inside=False,
+        legend_outside=False,
+    ):
         if legend_outside:
             latex2 = R.TLatex()
             latex2.SetNDC()
@@ -120,8 +138,8 @@ class Plot(object):
             latex2.SetTextFont(42)
             latex2.SetTextAngle(0)
             latex2.SetTextColor(R.kBlack)
-            latex2.SetTextSize(0.02)
-            latex2.DrawLatex(0.39, 0.720, text)
+            latex2.SetTextSize(0.04)
+            latex2.DrawLatex(0.19, 0.720, text)
         else:
             ypos = 0.960 if "_{" in text else 0.955
             latex2 = R.TLatex()
@@ -134,23 +152,81 @@ class Plot(object):
                 begin_left = 0.145
             latex2.DrawLatex(begin_left, 0.960, text)
 
-    def DrawCMS(self,position=0, preliminary=True):
-        if preliminary:
-            additional_string = 'Preliminary'
+    def DrawCMS(self, position=0, preliminary=True, subtext="", own_work=False, thesisstyle=False,supp=False):
+        additional_string = ""
+        if subtext != "":
+            additional_string = subtext
         else:
-            additional_string = ""
-        if position==0:
-            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', additional_string , 11,
-                               0.045, 0.05, 1.0, '', 0.6)
-        elif position=="outside":
-            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', additional_string , 0,
-                               0.095, 0.05, 1.0, '', 0.6)
-        elif position=="legend_outside":
-            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', additional_string , 11,
-                               0.045, 0.05, 1.0, '', 0.4)
+            if preliminary:
+                additional_string = "Preliminary"
+            if own_work:
+                additional_string = "Own Work"
+            if supp:
+                additional_string = "Supplementary"
+
+#cms_scale=1.0
+#        DrawCMSLogo(pads[0], 'CMS', extra, 11, 0.045, 0.05, 1.0, '', cms_scale)
+
+        if position == 0:
+            styles.DrawCMSLogo(
+                self._subplots[0]._pad,
+                "CMS",
+                additional_string,
+                11,
+                0.045,
+                0.05,
+                1.0,
+                "",
+                cmsTextSize=0.8,
+                extraOverCmsTextSize=0.8,
+                extraTextFont=42,
+                thesisstyle=thesisstyle,
+            )
+        elif position == "outside":
+            styles.DrawCMSLogo(
+                self._subplots[0]._pad,
+                "CMS",
+                additional_string,
+                0,
+                0.095,
+                0.05,
+                1.0,
+                "",
+                cmsTextSize=0.6,
+                extraOverCmsTextSize=0.8,
+                extraTextFont=42,
+                thesisstyle=thesisstyle,
+            )
+        elif position == "legend_outside":
+            styles.DrawCMSLogo(
+                self._subplots[0]._pad,
+                "CMS",
+                additional_string,
+                11,
+                0.045,
+                0.05,
+                1.0,
+                "",
+                cmsTextSize=0.4,
+                extraOverCmsTextSize=0.8,
+                extraTextFont=42,
+                thesisstyle=thesisstyle,
+            )
         else:
-            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', additional_string , 11,
-                               0.795, 0.05, 1.0, '', 0.6)
+            styles.DrawCMSLogo(
+                self._subplots[0]._pad,
+                "CMS",
+                additional_string,
+                11,
+                0.795,
+                0.05,
+                1.0,
+                "",
+                cmsTextSize=0.6,
+                extraOverCmsTextSize=0.8,
+                extraTextFont=42,
+                thesisstyle=thesisstyle,
+            )
 
     def DrawLumi(self, lumi, textsize=0.6, legend_outside=False):
         if legend_outside:
@@ -160,7 +236,7 @@ class Plot(object):
             latex2.SetTextAngle(0)
             latex2.SetTextColor(R.kBlack)
             latex2.SetTextSize(0.03)
-            latex2.DrawLatex(0.75, 0.950, lumi)
+            latex2.DrawLatex(0.75, 0.88, lumi)
         else:
             styles.DrawTitle(self._subplots[0]._pad, lumi, 3, textsize)
 
@@ -184,48 +260,59 @@ class Plot(object):
     def add_inlet(self, inlet):
         self._inlets.append(inlet)
 
-    def add_legend(self,
-                   reference_subplot=0,
-                   width=0.30,
-                   height=0.20,
-                   pos=3,
-                   offset=0.03):
+    def add_legend(
+        self, reference_subplot=0, width=0.30, height=0.20, pos=3, offset=0.03
+    ):
         self._legends.append(
-            Legend(reference_subplot, width, height, pos, offset,
-                   self._subplots))
-    
-    def add_inlet_legend(self,
-                   reference_inlet=0,
-                   width=0.30,
-                   height=0.20,
-                   pos=3,
-                   offset=0.03):
+            Legend(reference_subplot, width, height, pos, offset, self._subplots)
+        )
+
+    def add_inlet_legend(
+        self, reference_inlet=0, width=0.30, height=0.20, pos=3, offset=0.03
+    ):
         self._inlets_legends.append(
-            Legend(reference_inlet, width, height, pos, offset,
-                   self._inlets))
-   
-    def add_line(self,
-                    reference_subplot=0,
-                    xmin=0.30,
-                    ymin=0.20,
-                    xmax=3,
-                    ymax=0.03, color=1, linestyle=0, linewidth=1):
+            Legend(reference_inlet, width, height, pos, offset, self._inlets)
+        )
+
+    def add_line(
+        self,
+        reference_subplot=0,
+        xmin=0.30,
+        ymin=0.20,
+        xmax=3,
+        ymax=0.03,
+        color=1,
+        linestyle=0,
+        linewidth=1,
+    ):
         self._lines.append(
-            Line(reference_subplot, xmin, ymin, xmax, ymax, color, linestyle, linewidth, self._subplots))
+            Line(
+                reference_subplot,
+                xmin,
+                ymin,
+                xmax,
+                ymax,
+                color,
+                linestyle,
+                linewidth,
+                self._subplots,
+            )
+        )
 
-
-    def setGraphStyle(self,
-                      name,
-                      markerstyle,
-                      markershape=20,
-                      markercolor=R.kBlack,
-                      linecolor=1,
-                      fillcolor=0,
-                      linewidth=1,
-                      linestyle=1,
-                      markersize=1,
-                      fillstyle=1001,
-                      alpha=1.0):
+    def setGraphStyle(
+        self,
+        name,
+        markerstyle,
+        markershape=20,
+        markercolor=R.kBlack,
+        linecolor=1,
+        fillcolor=0,
+        linewidth=1,
+        linestyle=1,
+        markersize=1,
+        fillstyle=1001,
+        alpha=1.0,
+    ):
         for subplot in self._subplots:
             subplot.setGraphStyle(
                 name=name,
@@ -238,12 +325,14 @@ class Plot(object):
                 linewidth=linewidth,
                 markersize=markersize,
                 fillstyle=fillstyle,
-                alpha=alpha)
+                alpha=alpha,
+            )
 
     def create_stack(self, hist_names, name, group_name="invisible"):
         for subplot in self._subplots:
             subplot.create_stack(
-                hist_names=hist_names, name=name, group_name=group_name)
+                hist_names=hist_names, name=name, group_name=group_name
+            )
 
     def scaleXLabelSize(self, val):
         for subplot in self._subplots:
@@ -289,13 +378,30 @@ class Plot(object):
         for subplot in self._subplots:
             subplot.scaleYLabelOffset(val)
 
-    def unroll(self, ur_bin_labels, ur_label_pos = 9, ur_label_angle = 270, ur_label_size = 1.0, selection = None, pads_to_print_labels = None):
+    def unroll(
+        self,
+        ur_bin_labels,
+        ur_label_pos=9,
+        ur_label_angle=270,
+        ur_label_size=1.0,
+        selection=None,
+        pads_to_print_labels=None,
+    ):
         empty_labels = ["" for label in ur_bin_labels]
         for i, subplot in enumerate(self._subplots):
-            subplot.unroll(ur_bin_labels if (pads_to_print_labels == None or i in pads_to_print_labels) else empty_labels,
-                           ur_label_pos, ur_label_angle, ur_label_size, selection)
+            subplot.unroll(
+                ur_bin_labels
+                if (pads_to_print_labels == None or i in pads_to_print_labels)
+                else empty_labels,
+                ur_label_pos,
+                ur_label_angle,
+                ur_label_size,
+                selection,
+            )
 
-    def changeXLabels(self, replacement_list): #requires list of strings with one string per labeled tick
+    def changeXLabels(
+        self, replacement_list
+    ):  # requires list of strings with one string per labeled tick
         for subplot in self._subplots:
             subplot.changeXLabels(replacement_list)
 
@@ -308,28 +414,25 @@ class Subplot(object):
     def __init__(self, name, lower_bound=0.0, upper_bound=1.0):
         logger.debug(
             "Booking subplot with lower boundary at %f and upper boundary at %f"
-            % (lower_bound, upper_bound))
-        self._pad = R.TPad("pad_" + str(name), "pad_" + str(name), 0., 0., 1.,
-                           1.)
-        '''
+            % (lower_bound, upper_bound)
+        )
+        self._pad = R.TPad("pad_" + str(name), "pad_" + str(name), 0.0, 0.0, 1.0, 1.0)
+        """
         if lower_bound==0.0:
             lower_bound+=self._pad.GetBottomMargin()
         if upper_bound==1.0:
             upper_bound-=self._pad.GetTopMargin()
-        '''
-        drawspaceheight = 1.0 - self._pad.GetBottomMargin(
-        ) - self._pad.GetTopMargin()
-        lower_margin = self._pad.GetBottomMargin(
-        ) + lower_bound * drawspaceheight
-        upper_margin = self._pad.GetTopMargin() + (
-            1 - upper_bound) * drawspaceheight
+        """
+        drawspaceheight = 1.0 - self._pad.GetBottomMargin() - self._pad.GetTopMargin()
+        lower_margin = self._pad.GetBottomMargin() + lower_bound * drawspaceheight
+        upper_margin = self._pad.GetTopMargin() + (1 - upper_bound) * drawspaceheight
         self._pad.SetBottomMargin(lower_margin)
         self._pad.SetTopMargin(upper_margin)
         self._pad.SetFillStyle(4000)
         self._pad.Draw()
 
         self._hists = {}
-        self._graphs= {}
+        self._graphs = {}
         self._xlabel = None
         self._ylabel = None
         self._logx = False
@@ -349,6 +452,7 @@ class Subplot(object):
         self._ytitleoffsetscale = 1.0
         self._xlabeloffsetscale = 1.0
         self._ylabeloffsetscale = 1.0
+        self._remove_lower_x_ticks = False
         self._height = 1 - upper_margin - lower_margin
         self._unroll = None
         self._unroll_pads = []
@@ -367,45 +471,50 @@ class Subplot(object):
 
     # adds histogram to subplot and assign individual name and group name. Default group name = "invisible" which is ignored by DrawAll function.
     def add_hist(self, hist, name, group_name="invisible"):
-        if name in self._hists.keys():
+        if name in list(self._hists.keys()):
             logger.fatal("Histogram name %s already used!")
             raise Exception
         if not (isinstance(hist, R.TH1D) or isinstance(hist, R.TH1F)):
             logger.fatal(
-                "add_hist expects a TH1F with name {}, got object {}".format(
-                    name, hist))
+                "add_hist expects a TH1F with name {}, got object {}".format(name, hist)
+            )
             raise Exception
         self._hists[name] = [
-            copy.deepcopy(hist), group_name, ""
+            copy.deepcopy(hist),
+            group_name,
+            "",
         ]  # last entry is used to save the markerstyle and set in a different function
 
     def add_graph(self, graph, name, group_name="invisible"):
-        if name in self._graphs.keys():
+        if name in list(self._graphs.keys()):
             logger.fatal("Graph name %s already used!")
             raise Exception
         if not isinstance(graph, R.TGraph):
             logger.fatal(
                 "add_graph expects a TGraph with name {}, got object {}".format(
-                    name, graph))
+                    name, graph
+                )
+            )
             raise Exception
         self._graphs[name] = [
-            copy.deepcopy(graph), group_name, ""
+            copy.deepcopy(graph),
+            group_name,
+            "",
         ]  # last entry is used to save the markerstyle and set in a different function
 
     # returns histogram with given name or sum of histograms with given group name
     def get_hist(self, name):
-        if name in self._hists.keys():
+        if name in list(self._hists.keys()):
             if isinstance(self._hists[name][0], R.THStack):
                 logger.fatal("get_hist does not accept names of stacks!")
                 raise Exception
             return self._hists[name][0]
         else:
             empty = True
-            for entry in self._hists.values():
+            for entry in list(self._hists.values()):
                 if entry[1] == name:
                     if isinstance(entry[0], R.THStack):
-                        logger.fatal(
-                            "get_hist does not accept names of stacks!")
+                        logger.fatal("get_hist does not accept names of stacks!")
                         raise Exception
                     if empty:
                         hist = copy.deepcopy(entry[0])
@@ -420,16 +529,22 @@ class Subplot(object):
                 return hist
 
     def get_graph(self, name):
-        if name in self._graphs.keys():
+        if name in list(self._graphs.keys()):
             return self._graphs[name]
 
     # draws all histograms assigned to the subplot except those with group name "invisible"
     def DrawAll(self):
         if isinstance(self._unroll, list):
-            self.DrawUnrolled([entry for entry in self._hists() if not self._hists[entry][1] == "invisible"])
+            self.DrawUnrolled(
+                [
+                    entry
+                    for entry in self._hists()
+                    if not self._hists[entry][1] == "invisible"
+                ]
+            )
         else:
             isFirst = True
-            for hist in self._hists.values():
+            for hist in list(self._hists.values()):
                 if not hist[1] == "invisible":
                     self.DrawSingle(hist, isFirst)
                     isFirst = False
@@ -440,18 +555,18 @@ class Subplot(object):
         if isinstance(self._unroll, list):
             self.DrawUnrolled(names)
         else:
-            if isinstance(names, basestring):
+            if isinstance(names, str):
                 names = [names]
             isFirst = True
             for name in names:
-                if name in self._hists.keys():
+                if name in list(self._hists.keys()):
                     self.DrawSingle(self._hists[name], isFirst)
                     isFirst = False
-                elif name in self._graphs.keys():
+                elif name in list(self._graphs.keys()):
                     self.DrawSingle(self._graphs[name], isFirst)
                     isFirst = False
                 else:
-                    for entry in self._hists.values():
+                    for entry in list(self._hists.values()):
                         if entry[1] == name:
                             self.DrawSingle(entry, isFirst)
                             isFirst = False
@@ -461,9 +576,9 @@ class Subplot(object):
     def DrawSingle(self, hist, isFirst):
         self._pad.cd()
         if isFirst:
-            #hist[0].Draw() # needed for stacks
+            # hist[0].Draw() # needed for stacks
             if self._ylims != None and isinstance(
-                    hist[0], R.THStack
+                hist[0], R.THStack
             ):  # otherwise lims are not set without a unintended margin
                 copystack = copy.deepcopy(hist[0])
                 axishist = copystack.GetHists()[0]
@@ -483,7 +598,7 @@ class Subplot(object):
             raise Exception
         n_bins = len(self._unroll)
         n_selected_bins = len(self._selection)
-        #determine ranges
+        # determine ranges
         if self._xlims == None:
             hist = self._hists[names[0]][0]
             if isinstance(hist, R.THStack):
@@ -492,22 +607,33 @@ class Subplot(object):
         axis_borders = [self._xlims[0]]
         pad_borders = [self._pad.GetLeftMargin()]
         axisrange = self._xlims[1] - self._xlims[0]
-        inv_round_order = 10.0**(4-math.floor(math.log10(axisrange)))
+        inv_round_order = 10.0 ** (4 - math.floor(math.log10(axisrange)))
         for i in range(n_bins):
-            axis_borders.append(int((self._xlims[0] + axisrange / n_bins * (i + 1))*inv_round_order)/inv_round_order)
+            axis_borders.append(
+                int((self._xlims[0] + axisrange / n_bins * (i + 1)) * inv_round_order)
+                / inv_round_order
+            )
         for i in range(n_selected_bins):
-            pad_borders.append(self._pad.GetLeftMargin() + (1.0 - self._pad.GetRightMargin() - self._pad.GetLeftMargin()) / n_selected_bins * (i + 1))
-        #fix ticklengths
+            pad_borders.append(
+                self._pad.GetLeftMargin()
+                + (1.0 - self._pad.GetRightMargin() - self._pad.GetLeftMargin())
+                / n_selected_bins
+                * (i + 1)
+            )
+        # fix ticklengths
         self._scale_ticklength = 2.0 / n_bins
-        #create subpads
+        # create subpads
         copy_me = copy.deepcopy(self)
         margin = 0.01 * axisrange / n_bins
         for i, idx in enumerate(self._selection):
             self._unroll_pads.append(copy.deepcopy(copy_me))
             self._unroll_pads[i]._unroll = self._unroll[idx]
-            self._unroll_pads[i]._xlims = [axis_borders[idx] + margin, axis_borders[idx+1] - margin]
+            self._unroll_pads[i]._xlims = [
+                axis_borders[idx] + margin,
+                axis_borders[idx + 1] - margin,
+            ]
             self._unroll_pads[i]._pad.SetLeftMargin(pad_borders[i])
-            self._unroll_pads[i]._pad.SetRightMargin(1.0 - pad_borders[i+1])
+            self._unroll_pads[i]._pad.SetRightMargin(1.0 - pad_borders[i + 1])
             self._unroll_pads[i]._pad.Draw()
             if i > 0:
                 self._unroll_pads[i]._ylabelsize = 0.0
@@ -519,25 +645,38 @@ class Subplot(object):
             offs = axis_borders[0]
             incr = (axis_borders[1] - axis_borders[0]) / 4.0
             if self._unroll_pads[i]._changexlabels == None:
-                self._unroll_pads[i]._changexlabels = [" ",
-                                                       "{:.1f}".format(offs + 1 * incr),
-                                                       "{:.1f}".format(offs + 2 * incr),
-                                                       "{:.1f}".format(offs + 3 * incr),
-                                                       " "]
-                
-            #fix y range
+                self._unroll_pads[i]._changexlabels = [
+                    " ",
+                    "{:.1f}".format(offs + 1 * incr),
+                    "{:.1f}".format(offs + 2 * incr),
+                    "{:.1f}".format(offs + 3 * incr),
+                    " ",
+                ]
+
+            # fix y range
             if self._ylims == None:
                 hist = self._hists[names[0]][0]
                 if isinstance(hist, R.THStack):
                     copystack = copy.deepcopy(hist)
                     hist = copystack.GetHists()[0]
-                self._unroll_pads[i]._ylims = [hist.GetMinimum()/1.1, hist.GetMaximum()*1.2]
+                self._unroll_pads[i]._ylims = [
+                    hist.GetMinimum() / 1.1,
+                    hist.GetMaximum() * 1.2,
+                ]
                 if self._logy and self._unroll_pads[i]._ylims[0] == 0.0:
-                    self._unroll_pads[i]._ylims[0] = self._unroll_pads[i]._ylims[1]/10.0
-        #draw subpads
+                    self._unroll_pads[i]._ylims[0] = (
+                        self._unroll_pads[i]._ylims[1] / 10.0
+                    )
+        # draw subpads
         for unroll_pad in self._unroll_pads:
             unroll_pad.Draw(names)
-            styles.DrawText(unroll_pad._pad, unroll_pad._unroll, unroll_pad._unroll_label_scalesize, self._unroll_label_pos, self._unroll_label_angle)
+            styles.DrawText(
+                unroll_pad._pad,
+                unroll_pad._unroll,
+                unroll_pad._unroll_label_scalesize,
+                self._unroll_label_pos,
+                self._unroll_label_angle,
+            )
 
     def setXlabel(self, label):
         self._xlabel = label
@@ -556,7 +695,7 @@ class Subplot(object):
 
     def setLogY(self):
         self._logy = True
-    
+
     def setGrid(self):
         self._grid = True
 
@@ -590,6 +729,8 @@ class Subplot(object):
     def scaleYLabelOffset(self, val):
         self._ylabeloffsetscale = val
 
+    def remove_lower_x_ticks(self):
+      self._remove_lower_x_ticks = True
 
     # internal method to apply formatting to initial histograms
     def setAxisStyles(self, hist):
@@ -597,37 +738,45 @@ class Subplot(object):
         if self._xlabel == None:
             hist.GetXaxis().SetTitleSize(0)
             hist.GetXaxis().SetLabelSize(0)
-            #hist.GetXaxis().SetTickLength(0)
+            if self._remove_lower_x_ticks: hist.GetXaxis().SetTickLength(0)
         else:
             hist.GetXaxis().SetTitle(self._xlabel)
             hist.GetXaxis().SetTitleOffset(
-                self._xtitleoffsetscale * hist.GetXaxis().GetTitleOffset())
+                self._xtitleoffsetscale * hist.GetXaxis().GetTitleOffset()
+            )
             hist.GetXaxis().SetLabelOffset(
-                self._xlabeloffsetscale * hist.GetXaxis().GetLabelOffset())
+                self._xlabeloffsetscale * hist.GetXaxis().GetLabelOffset()
+            )
         if self._ylabel == None:
             hist.GetYaxis().SetTitleSize(0)
             hist.GetYaxis().SetLabelSize(0)
-            #hist.GetYaxis().SetTickLength(0)
+            # hist.GetYaxis().SetTickLength(0)
         else:
             hist.GetYaxis().SetTitle(self._ylabel)
             hist.GetYaxis().SetTitleOffset(
-                self._ytitleoffsetscale * hist.GetYaxis().GetTitleOffset())
+                self._ytitleoffsetscale * hist.GetYaxis().GetTitleOffset()
+            )
             hist.GetYaxis().SetLabelOffset(
-                self._ylabeloffsetscale * hist.GetYaxis().GetLabelOffset())
+                self._ylabeloffsetscale * hist.GetYaxis().GetLabelOffset()
+            )
 
         # set label sizes
         if self._xlabelsize != None:
             hist.GetXaxis().SetLabelSize(
-                self._xlabelsize * hist.GetXaxis().GetLabelSize())
+                self._xlabelsize * hist.GetXaxis().GetLabelSize()
+            )
         if self._ylabelsize != None:
             hist.GetYaxis().SetLabelSize(
-                self._ylabelsize * hist.GetYaxis().GetLabelSize())
+                self._ylabelsize * hist.GetYaxis().GetLabelSize()
+            )
         if self._xtitlesize != None:
             hist.GetXaxis().SetTitleSize(
-                self._xtitlesize * hist.GetXaxis().GetTitleSize())
+                self._xtitlesize * hist.GetXaxis().GetTitleSize()
+            )
         if self._ytitlesize != None:
             hist.GetYaxis().SetTitleSize(
-                self._ytitlesize * hist.GetYaxis().GetTitleSize())
+                self._ytitlesize * hist.GetYaxis().GetTitleSize()
+            )
 
         # set log scale and fix customized range if necessary
         if self._logx:
@@ -656,40 +805,42 @@ class Subplot(object):
         if self._nydivisions != None:
             hist.GetYaxis().SetNdivisions(*self._nydivisions)
         hist.GetYaxis().SetTickLength(0.02 / self._height * self._scale_ticklength)
-        
-        #change axis labels
+
+        # change axis labels
         if self._changexlabels != None:
             for i, label in enumerate(self._changexlabels):
-                hist.GetXaxis().ChangeLabel(i+1, -1, -1, -1, -1, -1, label)
+                hist.GetXaxis().ChangeLabel(i + 1, -1, -1, -1, -1, -1, label)
         if self._changeylabels != None:
             for i, label in enumerate(self._changeylabels):
-                hist.GetYaxis().ChangeLabel(i+1, -1, -1, -1, -1, -1, label)
-   
+                hist.GetYaxis().ChangeLabel(i + 1, -1, -1, -1, -1, -1, label)
+
         # add grid ticks if set
         if self._grid:
             self._pad.SetGridy(1)
         # always use scientific notation on y axis
-        hist.GetYaxis().SetMaxDigits(3)
+        hist.GetYaxis().SetMaxDigits(4)
+
     # sets style for specific histogram or group
-    def setGraphStyle(self,
-                      name,
-                      markerstyle,
-                      markershape=20,
-                      markercolor=R.kBlack,
-                      linecolor=1,
-                      fillcolor=0,
-                      linewidth=1,
-                      markersize=1,
-                      linestyle=1,
-                      fillstyle=1001,
-                      alpha=1.0):
+    def setGraphStyle(
+        self,
+        name,
+        markerstyle,
+        markershape=20,
+        markercolor=R.kBlack,
+        linecolor=1,
+        fillcolor=0,
+        linewidth=1,
+        markersize=1,
+        linestyle=1,
+        fillstyle=1001,
+        alpha=1.0,
+    ):
         markerstyledict = {}
-        if markerstyle in markerstyledict.keys():
+        if markerstyle in list(markerstyledict.keys()):
             markerstyle = markerstyledict[markerstyle]
-        if name in self._hists.keys():
+        if name in list(self._hists.keys()):
             if isinstance(self._hists[name][0], R.THStack):
-                logger.warning(
-                    "Adressed object is stack. Style cannot be set!")
+                logger.warning("Adressed object is stack. Style cannot be set!")
                 return
             self._hists[name][2] = markerstyle
             self._hists[name][0].SetMarkerStyle(markershape)
@@ -700,22 +851,21 @@ class Subplot(object):
             self._hists[name][0].SetMarkerSize(markersize)
             self._hists[name][0].SetLineStyle(linestyle)
             self._hists[name][0].SetFillStyle(fillstyle)
-        elif name in self._graphs.keys():
+        elif name in list(self._graphs.keys()):
             self._graphs[name][2] = markerstyle
             self._graphs[name][0].SetMarkerStyle(markershape)
             self._graphs[name][0].SetMarkerColor(markercolor)
             self._graphs[name][0].SetLineColor(linecolor)
-            self._graphs[name][0].SetFillColorAlpha(fillcolor,alpha)
+            self._graphs[name][0].SetFillColorAlpha(fillcolor, alpha)
             self._graphs[name][0].SetLineWidth(linewidth)
             self._graphs[name][0].SetMarkerSize(markersize)
             self._graphs[name][0].SetLineStyle(linestyle)
             self._graphs[name][0].SetFillStyle(fillstyle)
         else:
-            for hist in self._hists.values():
+            for hist in list(self._hists.values()):
                 if hist[1] == name:
                     if isinstance(hist[0], R.THStack):
-                        logger.warning(
-                            "Adressed object is stack. Style cannot be set!")
+                        logger.warning("Adressed object is stack. Style cannot be set!")
                         return
                     hist[2] = markerstyle
                     hist[0].SetMarkerStyle(markershape)
@@ -729,20 +879,19 @@ class Subplot(object):
 
     # creates stack from registered histograms defined via name or group name
     def create_stack(self, hist_names, name, group_name="invisible"):
-        if name in self._hists.keys():
+        if name in list(self._hists.keys()):
             logger.fatal("Stack name %s already used!" % name)
             raise Exception
         stack = R.THStack("hs", "")
         # regularize inputs
-        if isinstance(hist_names, basestring):
+        if isinstance(hist_names, str):
             hist_names = [hist_names]
         for hist_name in hist_names:
-            if hist_name in self._hists.keys():
+            if hist_name in list(self._hists.keys()):
                 stack.Add(self._hists[hist_name][0])
-                logger.debug(
-                    "Added histogram %s to stack %s" % (hist_name, name))
+                logger.debug("Added histogram %s to stack %s" % (hist_name, name))
             else:
-                for key, hist in self._hists.iteritems():
+                for key, hist in self._hists.items():
                     if hist_name == hist[1]:
                         if isinstance(hist[0], R.THStack):
                             logger.fatal(
@@ -750,16 +899,15 @@ class Subplot(object):
                             )
                             raise Exception
                         stack.Add(hist[0])
-                        logger.debug(
-                            "Added histogram %s to stack %s" % (key, name))
+                        logger.debug("Added histogram %s to stack %s" % (key, name))
         self._hists[name] = [stack, group_name, "hist"]
 
     # normalizes one or more histograms to a given denominator
     def normalize(self, nominator_names, denominator_names):
         # regularize inputs
-        if isinstance(nominator_names, basestring):
+        if isinstance(nominator_names, str):
             nominator_names = [nominator_names]
-        if isinstance(denominator_names, basestring):
+        if isinstance(denominator_names, str):
             denominator_names = [denominator_names]
 
         # sum up denominator
@@ -771,18 +919,18 @@ class Subplot(object):
             else:
                 denominator.Add(self.get_hist(name))
         # do not propagate denominator errors
-        for i in xrange(1, denominator.GetNbinsX() + 1):
-            denominator.SetBinError(i, 0.)
+        for i in range(1, denominator.GetNbinsX() + 1):
+            denominator.SetBinError(i, 0.0)
 
         # normalize all nominator inputs
         for name in nominator_names:
-            if name in self._hists.keys():
+            if name in list(self._hists.keys()):
                 if isinstance(self._hists[name][0], R.THStack):
                     logger.fatal("Stacks cannot be normalized!")
                     raise Exception
                 self._hists[name][0].Divide(denominator)
             else:
-                for hist in self._hists.values():
+                for hist in list(self._hists.values()):
                     if hist[1] == name:
                         if isinstance(hist[0], R.THStack):
                             logger.fatal("Stacks cannot be normalized!")
@@ -791,23 +939,28 @@ class Subplot(object):
 
     # normalizes bin contents of all histograms in the subplot to their bin width
     def normalizeByBinWidth(self):
-        for hist in self._hists.values():
+        for hist in list(self._hists.values()):
             if not isinstance(hist[0], R.THStack):
                 denominator = copy.deepcopy(hist[0])
                 for i in range(denominator.GetNbinsX()):
-                    denominator.SetBinContent(i + 1,
-                                              denominator.GetBinWidth(i + 1))
+                    denominator.SetBinContent(i + 1, denominator.GetBinWidth(i + 1))
                     denominator.SetBinError(i + 1, 0.0)
                 hist[0].Divide(denominator)
 
-
-    def unroll(self, ur_bin_labels, ur_label_pos = 9, ur_label_angle = 270, ur_label_size = 1.0, selection = None):
+    def unroll(
+        self,
+        ur_bin_labels,
+        ur_label_pos=9,
+        ur_label_angle=270,
+        ur_label_size=1.0,
+        selection=None,
+    ):
         self._unroll = ur_bin_labels
         self._unroll_label_pos = ur_label_pos
         self._unroll_label_angle = ur_label_angle
         self._unroll_label_scalesize = ur_label_size
         if selection == None:
-            self._selection = range(len(self._unroll))
+            self._selection = list(range(len(self._unroll)))
         else:
             self._selection = selection
 
@@ -828,15 +981,15 @@ class InletPlot(Subplot):
     """
     Create an Inlet plot, where the position of the pad is set via the contructor, everything else is identical to a normal subplot
     """
+
     def __init__(self, name, x_1, x_2, y_1, y_2):
-        logger.debug(
-            "Booking inlet plot with size %s x %s" % (x_2 - x_1, y_2 - y_1))
+        logger.debug("Booking inlet plot with size %s x %s" % (x_2 - x_1, y_2 - y_1))
         self._pad = R.TPad("pad_" + str(name), "pad_" + str(name), x_1, y_1, x_2, y_2)
         self._pad.SetFillStyle(4000)
         self._pad.Draw()
 
         self._hists = {}
-        self._graphs= {}
+        self._graphs = {}
         self._xlabel = None
         self._ylabel = None
         self._logx = False
@@ -864,8 +1017,20 @@ class InletPlot(Subplot):
         self._unroll_label_scalesize = 1.0
         self._scale_ticklength = 1.0
 
+
 class Line(object):
-    def __init__(self, reference_subplot, xmin, ymin, xmax, ymax, color, linestyle, linewidth, subplots):
+    def __init__(
+        self,
+        reference_subplot,
+        xmin,
+        ymin,
+        xmax,
+        ymax,
+        color,
+        linestyle,
+        linewidth,
+        subplots,
+    ):
         if not isinstance(reference_subplot, int):
             logger.fatal("Subplot index is supposed to be of type int!")
             raise Exception
@@ -878,7 +1043,7 @@ class Line(object):
         self.color = color
         self.linestyle = linestyle
         self.linewidth = linewidth
-    
+
     def Draw(self):
         self.reference_subplot._pad.cd()
         self._line.SetLineWidth(self.linewidth)
@@ -886,9 +1051,9 @@ class Line(object):
         self._line.SetLineColor(self.color)
         self._line.Draw("same")
 
+
 class Legend(object):
-    def __init__(self, reference_subplot, width, height, pos, offset,
-                 subplots):
+    def __init__(self, reference_subplot, width, height, pos, offset, subplots):
         if not isinstance(reference_subplot, int):
             logger.fatal("Subplot index is supposed to be of type int!")
             raise Exception
@@ -903,34 +1068,38 @@ class Legend(object):
         b = subplots[reference_subplot]._pad.GetBottomMargin()
         r = subplots[reference_subplot]._pad.GetRightMargin()
         if pos == 1:
-            self._legend = R.TLegend(l + o, 1 - t - o - h, l + o + w,
-                                     1 - t - o, '', 'NBNDC')
+            self._legend = R.TLegend(
+                l + o, 1 - t - o - h, l + o + w, 1 - t - o, "", "NBNDC"
+            )
         if pos == 2:
             c = l + 0.5 * (1 - l - r)
-            self._legend = R.TLegend(c - 0.5 * w, 1 - t - o - h, c + 0.5 * w,
-                                     1 - t - o, '', 'NBNDC')
+            self._legend = R.TLegend(
+                c - 0.5 * w, 1 - t - o - h, c + 0.5 * w, 1 - t - o, "", "NBNDC"
+            )
         if pos == 3:
-            self._legend = R.TLegend(1 - r - o - w, 1 - t - o - h, 1 - r - o,
-                                     1 - t - o, '', 'NBNDC')
+            self._legend = R.TLegend(
+                1 - r - o - w, 1 - t - o - h, 1 - r - o, 1 - t - o + 0.03, "", "NBNDC"
+            )
         if pos == 4:
-            self._legend = R.TLegend(l + o, b + o, l + o + w, b + o + h, '',
-                                     'NBNDC')
+            self._legend = R.TLegend(l + o, b + o, l + o + w, b + o + h, "", "NBNDC")
         if pos == 5:
             c = l + 0.5 * (1 - l - r)
-            self._legend = R.TLegend(c - 0.5 * w, b + o, c + 0.5 * w,
-                                     b + o + h, '', 'NBNDC')
+            self._legend = R.TLegend(
+                c - 0.5 * w, b + o, c + 0.5 * w, b + o + h, "", "NBNDC"
+            )
         if pos == 6:
-            self._legend = R.TLegend(1 - r - o - w, b + o, 1 - r - o,
-                                     b + o + h, '', 'NBNDC')
+            self._legend = R.TLegend(
+                1 - r - o - w, b + o, 1 - r - o, b + o + h, "", "NBNDC"
+            )
         # the position outside of the plot
         if pos == 7:
-            self._legend = R.TLegend(l + o - 0.03, 0.975, l + o + w,
-                                     0.875, '', 'NBNDC')
+            self._legend = R.TLegend(l + o - 0.03, 0.975, l + o + w, 0.875, "", "NBNDC")
         self._subplots = subplots
-        self._textsizescale = 1.
+        self._textsizescale = 1.0
         self._ncolumns = 1
         self._FillColor = 0
         self._alpha = 1.0
+        self._legend.SetFillStyle(0)
 
     def add_entry(self, subplot_index, histname, label, style):
         if not isinstance(subplot_index, int):
@@ -939,15 +1108,20 @@ class Legend(object):
         if subplot_index >= len(self._subplots):
             logger.fatal("Subplot index is out of range!")
             raise Exception
-        if histname in self._subplots[subplot_index]._hists.keys():
+        if histname in list(self._subplots[subplot_index]._hists.keys()):
             self._legend.AddEntry(
-                self._subplots[subplot_index]._hists[histname][0], label, style)
-        elif histname in self._subplots[subplot_index]._graphs.keys():
+                self._subplots[subplot_index]._hists[histname][0], label, style
+            )
+        elif histname in list(self._subplots[subplot_index]._graphs.keys()):
             self._legend.AddEntry(
-                self._subplots[subplot_index]._graphs[histname][0], label, style)
+                self._subplots[subplot_index]._graphs[histname][0], label, style
+            )
         else:
-            logger.fatal("Requested histogram for legend does not exist!")
-            raise Exception
+            self._legend.AddEntry(
+                None, label, style
+            )
+            #logger.fatal("Requested histogram for legend does not exist!")
+            #raise Exception
 
     def scaleTextSize(self, scale):
         self._textsizescale = scale

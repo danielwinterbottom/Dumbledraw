@@ -1,11 +1,12 @@
 import ROOT as R
 import logging
 import yaml
+import os
 logger = logging.getLogger(__name__)
 
 COL_STORE = []
-labels_path = 'Dumbledraw/Dumbledraw/labels.yaml'
-
+#labels_path = 'Dumbledraw/Dumbledraw/labels.yaml'
+labels_path = os.getenv("CMSSW_BASE")+'/src/CombineHarvester/MSSMvsSMRun2Legacy/Dumbledraw/Dumbledraw/labels.yaml'
 
 def CreateTransparentColor(color, alpha):
     adapt = R.gROOT.GetColor(color)
@@ -21,7 +22,9 @@ legend_label_dict = yaml.load(open(labels_path))['legend_label']
 x_label_dict = yaml.load(open(labels_path))['x_label']
 
 color_dict = {
-    "ggH": R.TColor.GetColor("#fed766"),
+    "ggH": R.TColor.GetColor(1.,0.,0.),
+    "bbH": R.TColor.GetColor(0.,1.,0.),
+    "VLQ": R.TColor.GetColor(1),
     "qqH": R.TColor.GetColor("#2ab7ca"),
     "VH": R.TColor.GetColor("#001EFF"),
     "WH": R.TColor.GetColor("#001EFF"),
@@ -36,6 +39,7 @@ color_dict = {
     "EMB": R.TColor.GetColor(248, 206, 104),
     "ZLL": R.TColor.GetColor(100, 192, 232),
     "ZL": R.TColor.GetColor(100, 192, 232),
+    "other": R.TColor.GetColor("#B0C4DE"),
     "ZJ": R.TColor.GetColor("#64DE6A"),
     "TT": R.TColor.GetColor(155, 152, 204),
     "TTT": R.TColor.GetColor(155, 152, 204),

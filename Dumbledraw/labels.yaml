@@ -38,11 +38,9 @@ x_label:
     pt_ttjj: 'p_{T}(#tau#tau + di-Jet) (PF) / GeV'
     pt_ttjj_puppi: 'p_{T}(#tau#tau + di-Jet) (Puppi) / GeV'
     njets: 'Number of Jets'
-    njets_red: 'Number of Jets'
 
     # B-jet quantities
     nbtag: 'Number of b-tagged Jets'
-    nbtag_red: 'Number of b-tagged Jets'
     bpt_1: 'Leading b-Jet p_{T} / GeV'
     bpt_2: 'Trailing b-Jet p_{T} / GeV'
     beta_1: 'Leading b-Jet #eta'
@@ -60,13 +58,11 @@ x_label:
     mt_tot: 'Total transverse mass m_{T}^{tot} (PF) / GeV'
     mTdileptonMET: 'Transverse mass m_{T}(#mu_{1}+#mu_{2}, #slash{E}_{T}) (PF) / GeV'
     pZetaMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (PF) / GeV'
-    # mt_1_puppi: 'Transverse mass m_{T}(#mu_{1}, #slash{E}_{T}) (Puppi) / GeV'
-    mt_1_puppi: 'm_{T}^{#mu} (GeV)'
+    mt_1_puppi: 'Transverse mass m_{T}(#mu_{1}, #slash{E}_{T}) (Puppi) / GeV'
     mt_2_puppi: 'Transverse mass m_{T}(#mu_{2}, #slash{E}_{T}) (Puppi) / GeV'
     mt_tot_puppi: 'Total transverse mass m_{T}^{tot} (Puppi) / GeV'
     mTdileptonMET_puppi: 'Transverse mass m_{T}(#mu_{1}+#mu_{2}, #slash{E}_{T}) (Puppi) / GeV'
     pZetaPuppiMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (Puppi) / GeV'
-    pzeta: 'D_{#zeta} (GeV)'
 
     # MELA quantities
     ME_D: 'MELA D^{VBF}_{Z + 2 Jets}'
@@ -123,11 +119,9 @@ x_label:
     pt_ttjj: 'p_{T}(#tau#tau + di-Jet) (PF) / GeV'
     pt_ttjj_puppi: 'p_{T}(#tau#tau + di-Jet) (Puppi) / GeV'
     njets: 'Number of Jets'
-    njets_red: 'Number of Jets'
 
     # B-jet quantities
     nbtag: 'Number of b-tagged Jets'
-    nbtag_red: 'Number of b-tagged Jets'
     bpt_1: 'Leading b-Jet p_{T} / GeV'
     bpt_2: 'Trailing b-Jet p_{T} / GeV'
     beta_1: 'Leading b-Jet #eta'
@@ -145,13 +139,11 @@ x_label:
     mt_tot: 'Total transverse mass m_{T}^{tot} (PF) / GeV'
     mTdileptonMET: 'Transverse mass m_{T}(e+#mu, #slash{E}_{T}) (PF) / GeV'
     pZetaMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (PF) / GeV'
-    # mt_1_puppi: 'Transverse mass m_{T}(e, #slash{E}_{T}) (Puppi) / GeV'
-    mt_1_puppi: 'm_{T}^{#mu} (GeV)'
+    mt_1_puppi: 'Transverse mass m_{T}(e, #slash{E}_{T}) (Puppi) / GeV'
     mt_2_puppi: 'Transverse mass m_{T}(#mu, #slash{E}_{T}) (Puppi) / GeV'
     mt_tot_puppi: 'Total transverse mass m_{T}^{tot} (Puppi) / GeV'
     mTdileptonMET_puppi: 'Transverse mass m_{T}(e+#mu, #slash{E}_{T}) (Puppi) / GeV'
     pZetaPuppiMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (Puppi) / GeV'
-    pzeta: 'D_{#zeta} (GeV)'
 
     # MELA quantities
     ME_D: 'MELA D^{VBF}_{Z + 2 Jets}'
@@ -169,9 +161,6 @@ x_label:
     ME_costhetastar: 'MELA cos(#Theta*)'
     ME_phi: 'MELA #Phi'
     ME_phi1: 'MELA #Phi_{1}'
-
-    # gen match quantities
-    genMatchedLep1Pt: 'Electron p_{T}^{gen} / GeV'
   mt:
     # Dilepton Quantities
     m_vis: 'Visible di-#tau mass / GeV'
@@ -211,11 +200,9 @@ x_label:
     pt_ttjj: 'p_{T}(#tau#tau + di-Jet) (PF) / GeV'
     pt_ttjj_puppi: 'p_{T}(#tau#tau + di-Jet) (Puppi) / GeV'
     njets: 'Number of Jets'
-    njets_red: 'Number of Jets'
 
     # B-jet quantities
     nbtag: 'Number of b-tagged Jets'
-    nbtag_red: 'Number of b-tagged Jets'
     bpt_1: 'Leading b-Jet p_{T} / GeV'
     bpt_2: 'Trailing b-Jet p_{T} / GeV'
     beta_1: 'Leading b-Jet #eta'
@@ -233,13 +220,11 @@ x_label:
     mt_tot: 'Total transverse mass m_{T}^{tot} (PF) / GeV'
     mTdileptonMET: 'Transverse mass m_{T}(#mu+^{}#tau_{h}, #slash{E}_{T}) (PF) / GeV'
     pZetaMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (PF) / GeV'
-    # mt_1_puppi: 'Transverse mass m_{T}(#mu, #slash{E}_{T}) (Puppi) / GeV'
-    mt_1_puppi: 'm_{T}^{#mu} (GeV)'
+    mt_1_puppi: 'Transverse mass m_{T}(#mu, #slash{E}_{T}) (Puppi) / GeV'
     mt_2_puppi: 'Transverse mass m_{T}(^{}#tau_{h}, #slash{E}_{T}) (Puppi) / GeV'
     mt_tot_puppi: 'Total transverse mass m_{T}^{tot} (Puppi) / GeV'
     mTdileptonMET_puppi: 'Transverse mass m_{T}(#mu+^{}#tau_{h}, #slash{E}_{T}) (Puppi) / GeV'
     pZetaPuppiMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (Puppi) / GeV'
-    pzeta: 'D_{#zeta} (GeV)'
 
     # MELA quantities
     ME_D: 'MELA D^{VBF}_{Z + 2 Jets}'
@@ -296,11 +281,9 @@ x_label:
     pt_ttjj: 'p_{T}(#tau#tau + di-Jet) (PF) / GeV'
     pt_ttjj_puppi: 'p_{T}(#tau#tau + di-Jet) (Puppi) / GeV'
     njets: 'Number of Jets'
-    njets_red: 'Number of Jets'
 
     # B-jet quantities
     nbtag: 'Number of b-tagged Jets'
-    nbtag_red: 'Number of b-tagged Jets'
     bpt_1: 'Leading b-Jet p_{T} / GeV'
     bpt_2: 'Trailing b-Jet p_{T} / GeV'
     beta_1: 'Leading b-Jet #eta'
@@ -318,13 +301,11 @@ x_label:
     mt_tot: 'Total transverse mass m_{T}^{tot} (PF) / GeV'
     mTdileptonMET: 'Transverse mass m_{T}(e+^{}#tau_{h}, #slash{E}_{T}) (PF) / GeV'
     pZetaMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (PF) / GeV'
-    # mt_1_puppi: 'Transverse mass m_{T}(e, #slash{E}_{T}) (Puppi) / GeV'
-    mt_1_puppi: 'm_{T}^{#mu} (GeV)'
+    mt_1_puppi: 'Transverse mass m_{T}(e, #slash{E}_{T}) (Puppi) / GeV'
     mt_2_puppi: 'Transverse mass m_{T}(^{}#tau_{h}, #slash{E}_{T}) (Puppi) / GeV'
     mt_tot_puppi: 'Total transverse mass m_{T}^{tot} (Puppi) / GeV'
     mTdileptonMET_puppi: 'Transverse mass m_{T}(e+^{}#tau_{h}, #slash{E}_{T}) (Puppi) / GeV'
     pZetaPuppiMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (Puppi) / GeV'
-    pzeta: 'D_{#zeta} (GeV)'
 
     # MELA quantities
     ME_D: 'MELA D^{VBF}_{Z + 2 Jets}'
@@ -342,9 +323,6 @@ x_label:
     ME_costhetastar: 'MELA cos(#Theta*)'
     ME_phi: 'MELA #Phi'
     ME_phi1: 'MELA #Phi_{1}'
-
-    # gen match quantities
-    genMatchedLep1Pt: 'Electron p_{T}^{gen} / GeV'
   tt:
     # Dilepton Quantities
     m_vis: 'Visible di-#tau mass / GeV'
@@ -384,11 +362,9 @@ x_label:
     pt_ttjj: 'p_{T}(#tau#tau + di-Jet) (PF) / GeV'
     pt_ttjj_puppi: 'p_{T}(#tau#tau + di-Jet) (Puppi) / GeV'
     njets: 'Number of Jets'
-    njets_red: 'Number of Jets'
 
     # B-jet quantities
     nbtag: 'Number of b-tagged Jets'
-    nbtag_red: 'Number of b-tagged Jets'
     bpt_1: 'Leading b-Jet p_{T} / GeV'
     bpt_2: 'Trailing b-Jet p_{T} / GeV'
     beta_1: 'Leading b-Jet #eta'
@@ -406,13 +382,11 @@ x_label:
     mt_tot: 'Total transverse mass m_{T}^{tot} (PF) / GeV'
     mTdileptonMET: 'Transverse mass m_{T}(^{}#tau_{h,1}+^{}#tau_{h,2}, #slash{E}_{T}) (PF) / GeV'
     pZetaMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (PF) / GeV'
-    # mt_1_puppi: 'Transverse mass m_{T}(^{}#tau_{h,1}, #slash{E}_{T}) (Puppi) / GeV'
-    mt_1_puppi: 'm_{T}^{#mu} (GeV)'
+    mt_1_puppi: 'Transverse mass m_{T}(^{}#tau_{h,1}, #slash{E}_{T}) (Puppi) / GeV'
     mt_2_puppi: 'Transverse mass m_{T}(^{}#tau_{h,2}, #slash{E}_{T}) (Puppi) / GeV'
     mt_tot_puppi: 'Total transverse mass m_{T}^{tot} (Puppi) / GeV'
     mTdileptonMET_puppi: 'Transverse mass m_{T}(^{}#tau_{h,1}+^{}#tau_{h,2}, #slash{E}_{T}) (Puppi) / GeV'
     pZetaPuppiMissVis: 'p_{#zeta}^{miss} - 0.85 #upoint p_{#zeta}^{vis} (Puppi) / GeV'
-    pzeta: 'D_{#zeta} (GeV)'
 
     # MELA quantities
     ME_D: 'MELA D^{VBF}_{Z + 2 Jets}'
@@ -434,16 +408,16 @@ x_label:
 
 legend_label:
     HTT: 'H#rightarrow#tau#tau'
-    HSM: 'H(125 GeV)#rightarrow#tau#tau'
     ggH: 'gg#rightarrowH'
     qqH: 'qq#rightarrowH'
     VH: 'qq#rightarrowVH'
     WH: 'qq#rightarrowWH'
     ZH: 'qq#rightarrowZH'
-    HWW: 'H(125 GeV)#rightarrowWW'
     ZTT: 'Z#rightarrow#tau#tau'
-    EMB: '#tau#tau bkg.'
-    EMBFull: '#tau#tau background'
+    EMB: '#tau embedded'
+    EMBCMB: 'Z/t#bar{t}/VV#rightarrow#tau#tau'
+    TotalBkg: 'Background' 
+    REST: 'Sim. Bkg.'
     ZLL: 'Z#rightarrowll'
     ZL: 'Z#rightarrowll'
     ZJ: 'Z#rightarrowll (jet#rightarrow^{}#tau_{h})'
@@ -469,9 +443,9 @@ legend_label:
     EWKJ: 'Electroweak (jet#rightarrow^{}#tau_{h})'
     EWKZ: 'EWKZ'
     jetFakes: 'Jet#rightarrow^{}#tau_{h}'
+    jetFakesCMB: 'Jet#rightarrow^{}#tau'
     jetFakesW: 'Jet#rightarrow^{}#tau_{h} (W)'
     jetFakesQCD: 'Jet#rightarrow^{}#tau_{h} (QCD)'
     jetFakesTT: 'Jet#rightarrow^{}#tau_{h} (TT)'
     jetFakesEMB: 'Jet#rightarrow^{}#tau_{h}'
-    other: 'Others'
     data_obs: 'Data'

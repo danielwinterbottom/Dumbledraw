@@ -13,8 +13,7 @@ import styles
 
 
 class Plot(object):
-    def __init__(self, splitlist, style="none", invert_pad_creation=False,
-                 **kwargs):
+    def __init__(self, splitlist, style="none", legend_outside=False, **kwargs):
         styles.SetStyle(style, **kwargs)
         R.gROOT.SetBatch(True)  # don't disply canvas
         self._canvas = R.TCanvas()
@@ -22,13 +21,13 @@ class Plot(object):
         self._subplots = []
         self._legends = []
         self._lines = []
+        self._inlets = []
+        self._inlets_legends = []
         # evaluate splitlist and book
         if isinstance(splitlist, basestring):
             splitlist = [splitlist]
         lower = 1.0
         upper = 1.0
-        # Only needed if order of pad creation should be inverted
-        pad_coordinates = []
         for i, split in enumerate(splitlist):
             if not isinstance(split, float):
                 lower = split[0]
@@ -38,25 +37,16 @@ class Plot(object):
             if not isinstance(lower, float):
                 logger.fatal("Panel split is supposed to be of type float!")
                 raise Exception
-            if invert_pad_creation:
-                pad_coordinates.append((lower, upper))
-            else:
-                self._subplots.append(Subplot(i, lower, upper))
+            self._subplots.append(Subplot(i, lower, upper))
             upper = split
             if not isinstance(upper, float):
                 logger.fatal("Panel split is supposed to be of type float!")
                 raise Exception
         lower = 0.0
-        if invert_pad_creation:
-            pad_coordinates.append((lower, upper))
-            # Ensure naming of the pads stays the same even though
-            # this is never really used.
-            for i, (lower, upper) in zip(range(len(pad_coordinates)-1, -1, -1), reversed(pad_coordinates)):
-                self._subplots.append(Subplot(i, lower, upper))
-            # Reverse the order of the subplots to ensure the same numbering
-            self._subplots.reverse()
-        else:
-            self._subplots.append(Subplot(len(splitlist), lower, upper))
+        self._subplots.append(Subplot(len(splitlist), lower, upper))
+
+        if legend_outside:
+            self._subplots = [Subplot(0, -0.03, 0.90)]
 
     @property
     def nsubplots(self):
@@ -75,6 +65,15 @@ class Plot(object):
             raise Exception
         return self._subplots[index]
 
+    def inlet(self, index):
+        if not isinstance(index, int):
+            logger.fatal("Inlet index is supposed to be of type int!")
+            raise Exception
+        if index >= len(self._inlets):
+            logger.fatal("Inlet index is out of range!")
+            raise Exception
+        return self._inlets[index]
+
     def legend(self, index):
         if not isinstance(index, int):
             logger.fatal("Legend index is supposed to be of type int!")
@@ -83,6 +82,15 @@ class Plot(object):
             logger.fatal("Legend index is out of range!")
             raise Exception
         return self._legends[index]
+
+    def inlet_legend(self, index):
+        if not isinstance(index, int):
+            logger.fatal("Inlet Legend index is supposed to be of type int!")
+            raise Exception
+        if index >= len(self._legends):
+            logger.fatal("Inlet Legend index is out of range!")
+            raise Exception
+        return self._inlets_legends[index]
     
     def line(self, index):
         if not isinstance(index, int):
@@ -97,38 +105,64 @@ class Plot(object):
         self._canvas.SaveAs(outputname)
         logger.info("Created %s" % outputname)
 
-    def DrawChannelCategoryLabel(self, text, textsize=0.04, begin_left=None, print_inside=False):
-        if print_inside:
+    def DrawChannelCategoryLabel(self, text, textsize=0.04, begin_left=None, print_inside=False,legend_outside=False):
+        if legend_outside:
             latex2 = R.TLatex()
             latex2.SetNDC()
+            latex2.SetTextFont(42)
             latex2.SetTextAngle(0)
             latex2.SetTextColor(R.kBlack)
             latex2.SetTextSize(0.03)
+            latex2.DrawLatex(0.755, 0.89, text)
+        elif print_inside:
+            latex2 = R.TLatex()
+            latex2.SetNDC()
+            latex2.SetTextFont(42)
+            latex2.SetTextAngle(0)
+            latex2.SetTextColor(R.kBlack)
+            latex2.SetTextSize(0.02)
             latex2.DrawLatex(0.39, 0.720, text)
         else:
             ypos = 0.960 if "_{" in text else 0.955
             latex2 = R.TLatex()
             latex2.SetNDC()
             latex2.SetTextAngle(0)
+            latex2.SetTextFont(42)
             latex2.SetTextColor(R.kBlack)
             latex2.SetTextSize(textsize)
             if begin_left == None:
                 begin_left = 0.145
             latex2.DrawLatex(begin_left, 0.960, text)
 
-    def DrawCMS(self,position=0, cms_sub='Preliminary'):
+    def DrawCMS(self,position=0, preliminary=True):
+        if preliminary:
+            additional_string = 'Preliminary'
+        else:
+            additional_string = ""
         if position==0:
-            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', cms_sub, 11,
+            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', additional_string , 11,
                                0.045, 0.05, 1.0, '', 0.6)
         elif position=="outside":
-            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', cms_sub, 0,
+            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', additional_string , 0,
                                0.095, 0.05, 1.0, '', 0.6)
+        elif position=="legend_outside":
+            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', additional_string , 11,
+                               0.045, 0.05, 1.0, '', 0.4)
         else:
-            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', cms_sub, 11,
+            styles.DrawCMSLogo(self._subplots[0]._pad, 'CMS', additional_string , 11,
                                0.795, 0.05, 1.0, '', 0.6)
 
-    def DrawLumi(self, lumi, textsize=0.6):
-        styles.DrawTitle(self._subplots[0]._pad, lumi, 3, textsize)
+    def DrawLumi(self, lumi, textsize=0.6, legend_outside=False):
+        if legend_outside:
+            latex2 = R.TLatex()
+            latex2.SetNDC()
+            latex2.SetTextFont(42)
+            latex2.SetTextAngle(0)
+            latex2.SetTextColor(R.kBlack)
+            latex2.SetTextSize(0.03)
+            latex2.DrawLatex(0.75, 0.950, lumi)
+        else:
+            styles.DrawTitle(self._subplots[0]._pad, lumi, 3, textsize)
 
     def DrawText(self, x, y, text, textsize=0.04):
         ypos = 0.8
@@ -147,6 +181,9 @@ class Plot(object):
         for subplot in self._subplots:
             subplot.add_graph(graph=graph, name=name, group_name=group_name)
 
+    def add_inlet(self, inlet):
+        self._inlets.append(inlet)
+
     def add_legend(self,
                    reference_subplot=0,
                    width=0.30,
@@ -156,15 +193,26 @@ class Plot(object):
         self._legends.append(
             Legend(reference_subplot, width, height, pos, offset,
                    self._subplots))
+    
+    def add_inlet_legend(self,
+                   reference_inlet=0,
+                   width=0.30,
+                   height=0.20,
+                   pos=3,
+                   offset=0.03):
+        self._inlets_legends.append(
+            Legend(reference_inlet, width, height, pos, offset,
+                   self._inlets))
    
     def add_line(self,
                     reference_subplot=0,
                     xmin=0.30,
                     ymin=0.20,
                     xmax=3,
-                    ymax=0.03, color=1, linestyle=0):
+                    ymax=0.03, color=1, linestyle=0, linewidth=1):
         self._lines.append(
-            Line(reference_subplot, xmin, ymin, xmax, ymax, color, linestyle, self._subplots))
+            Line(reference_subplot, xmin, ymin, xmax, ymax, color, linestyle, linewidth, self._subplots))
+
 
     def setGraphStyle(self,
                       name,
@@ -542,12 +590,6 @@ class Subplot(object):
     def scaleYLabelOffset(self, val):
         self._ylabeloffsetscale = val
 
-    def remove_lower_x_ticks(self):
-        # Get stack if stack is the first drawn object
-        self._pad.cd()
-        for prim in self._pad.GetListOfPrimitives():
-            prim.GetXaxis().SetTickLength(0.)
-
 
     # internal method to apply formatting to initial histograms
     def setAxisStyles(self, hist):
@@ -626,6 +668,8 @@ class Subplot(object):
         # add grid ticks if set
         if self._grid:
             self._pad.SetGridy(1)
+        # always use scientific notation on y axis
+        hist.GetYaxis().SetMaxDigits(3)
     # sets style for specific histogram or group
     def setGraphStyle(self,
                       name,
@@ -746,17 +790,13 @@ class Subplot(object):
                         hist[0].Divide(denominator)
 
     # normalizes bin contents of all histograms in the subplot to their bin width
-    def normalizeByBinWidth(self, widths=None):
+    def normalizeByBinWidth(self):
         for hist in self._hists.values():
             if not isinstance(hist[0], R.THStack):
                 denominator = copy.deepcopy(hist[0])
                 for i in range(denominator.GetNbinsX()):
-                    if widths is None:
-                        denominator.SetBinContent(i + 1,
-                                                  denominator.GetBinWidth(i + 1))
-                    else:
-                        denominator.SetBinContent(i + 1,
-                                                  widths[i])
+                    denominator.SetBinContent(i + 1,
+                                              denominator.GetBinWidth(i + 1))
                     denominator.SetBinError(i + 1, 0.0)
                 hist[0].Divide(denominator)
 
@@ -784,8 +824,48 @@ class Subplot(object):
         self._changeYlabels = replacement_list
 
 
+class InletPlot(Subplot):
+    """
+    Create an Inlet plot, where the position of the pad is set via the contructor, everything else is identical to a normal subplot
+    """
+    def __init__(self, name, x_1, x_2, y_1, y_2):
+        logger.debug(
+            "Booking inlet plot with size %s x %s" % (x_2 - x_1, y_2 - y_1))
+        self._pad = R.TPad("pad_" + str(name), "pad_" + str(name), x_1, y_1, x_2, y_2)
+        self._pad.SetFillStyle(4000)
+        self._pad.Draw()
+
+        self._hists = {}
+        self._graphs= {}
+        self._xlabel = None
+        self._ylabel = None
+        self._logx = False
+        self._logy = False
+        self._grid = False
+        self._xlims = None
+        self._ylims = None
+        self._xlabelsize = None
+        self._ylabelsize = None
+        self._xtitlesize = None
+        self._ytitlesize = None
+        self._nxdivisions = None
+        self._nydivisions = None
+        self._changexlabels = None
+        self._changeylabels = None
+        self._xtitleoffsetscale = 1.0
+        self._ytitleoffsetscale = 1.0
+        self._xlabeloffsetscale = 1.0
+        self._ylabeloffsetscale = 1.0
+        self._height = y_2 - y_1
+        self._unroll = None
+        self._unroll_pads = []
+        self._unroll_label_pos = 9
+        self._unroll_label_angle = 270
+        self._unroll_label_scalesize = 1.0
+        self._scale_ticklength = 1.0
+
 class Line(object):
-    def __init__(self, reference_subplot, xmin, ymin, xmax, ymax, color, linestyle, subplots):
+    def __init__(self, reference_subplot, xmin, ymin, xmax, ymax, color, linestyle, linewidth, subplots):
         if not isinstance(reference_subplot, int):
             logger.fatal("Subplot index is supposed to be of type int!")
             raise Exception
@@ -797,11 +877,11 @@ class Line(object):
         self._line = R.TLine(xmin, ymin, xmax, ymax)
         self.color = color
         self.linestyle = linestyle
+        self.linewidth = linewidth
     
     def Draw(self):
-        print("drawing {}".format(self._line.Print()))
         self.reference_subplot._pad.cd()
-        self._line.SetLineWidth(2)
+        self._line.SetLineWidth(self.linewidth)
         self._line.SetLineStyle(self.linestyle)
         self._line.SetLineColor(self.color)
         self._line.Draw("same")
@@ -842,6 +922,10 @@ class Legend(object):
         if pos == 6:
             self._legend = R.TLegend(1 - r - o - w, b + o, 1 - r - o,
                                      b + o + h, '', 'NBNDC')
+        # the position outside of the plot
+        if pos == 7:
+            self._legend = R.TLegend(l + o - 0.03, 0.975, l + o + w,
+                                     0.875, '', 'NBNDC')
         self._subplots = subplots
         self._textsizescale = 1.
         self._ncolumns = 1
@@ -861,9 +945,6 @@ class Legend(object):
         elif histname in self._subplots[subplot_index]._graphs.keys():
             self._legend.AddEntry(
                 self._subplots[subplot_index]._graphs[histname][0], label, style)
-        elif histname == "":
-            self._legend.AddEntry(
-                R.MakeNullPointer(R.TObject), label, style)
         else:
             logger.fatal("Requested histogram for legend does not exist!")
             raise Exception
